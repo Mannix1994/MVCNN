@@ -32,5 +32,5 @@ VAL_PERIOD = 100
 
 # save the progress to checkpoint file every SAVE_PERIOD iterations
 # this takes tens of seconds. Don't set it smaller than 100.
-SAVE_PERIOD = 1000
+SAVE_PERIOD = 100
 
