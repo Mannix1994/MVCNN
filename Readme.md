@@ -1,3 +1,4 @@
+Clone from https://github.com/WeiTang114/MVCNN-TensorFlow
 This is a simple implementation of Multi-View CNN (MVCNN) introduced by Su et al. for 3D shape recognition, with TensorFlow. The original paper is here: [Multi-view Convolutional Neural Networks for 3D Shape Recognition](http://vis-www.cs.umass.edu/mvcnn/).
 
 A specific model is implemented:

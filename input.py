@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 W = H = 256
 
+
 class Shape:
     def __init__(self, list_file):
         with open(list_file) as f:
@@ -19,14 +20,13 @@ class Shape:
         self.views = self._load_views(view_files, self.V)
         self.done_mean = False
 
-
     def _load_views(self, view_files, V):
         views = []
         for f in view_files:
             im = cv2.imread(f)
             im = cv2.resize(im, (W, H))
             # im = cv2.cvtColor(im, cv2.COLOR_GRAY2BGR) #BGR!!
-            assert im.shape == (W,H,3), 'BGR!'
+            assert im.shape == (W, H, 3), 'BGR!'
             im = im.astype('float32')
             views.append(im)
         views = np.asarray(views)
@@ -36,11 +36,11 @@ class Shape:
         if not self.done_mean:
             mean_bgr = (104., 116., 122.)
             for i in range(3):
-                self.views[:,:,:,i] -= mean_bgr[i]
+                self.views[:, :, :, i] -= mean_bgr[i]
 
             self.done_mean = True
 
-    def crop_center(self, size=(227,227)):
+    def crop_center(self, size=(227, 227)):
         w, h = self.views.shape[1], self.views.shape[2]
         wn, hn = size
         left = w / 2 - wn / 2
@@ -66,26 +66,25 @@ class Dataset:
         self.listfiles, self.labels = [list(l) for l in zip(*z)]
         self.shuffled = True
 
-
     def batches(self, batch_size):
-        for x,y in self._batches_fast(self.listfiles, batch_size):
-            yield x,y
+        for x, y in self._batches_fast(self.listfiles, batch_size):
+            yield x, y
 
     def sample_batches(self, batch_size, n):
         listfiles = random.sample(self.listfiles, n)
-        for x,y in self._batches_fast(listfiles, batch_size):
-            yield x,y
+        for x, y in self._batches_fast(listfiles, batch_size):
+            yield x, y
 
     def _batches(self, listfiles, batch_size):
         n = len(listfiles)
         for i in xrange(0, n, batch_size):
             starttime = time.time()
 
-            lists = listfiles[i : i+batch_size]
+            lists = listfiles[i: i + batch_size]
             x = np.zeros((batch_size, self.V, 227, 227, 3))
             y = np.zeros(batch_size)
 
-            for j,l in enumerate(lists):
+            for j, l in enumerate(lists):
                 s = Shape(l)
                 s.crop_center()
                 if self.subtract_mean:
@@ -93,7 +92,7 @@ class Dataset:
                 x[j, ...] = s.views
                 y[j] = s.label
 
-            print 'load batch time:', time.time()-starttime, 'sec'
+            print 'load batch time:', time.time() - starttime, 'sec'
             yield x, y
 
     def _load_shape(self, listfile):
@@ -111,7 +110,7 @@ class Dataset:
             n = len(listfiles)
             with ThreadPoolExecutor(max_workers=16) as pool:
                 for i in range(0, n, batch_size):
-                    sub = listfiles[i: i + batch_size] if i < n-1 else [listfiles[-1]]
+                    sub = listfiles[i: i + batch_size] if i < n - 1 else [listfiles[-1]]
                     shapes = list(pool.map(self._load_shape, sub))
                     views = np.array([s.views for s in shapes])
                     labels = np.array([s.label for s in shapes])
@@ -128,7 +127,6 @@ class Dataset:
         # daemon child is killed when parent exits
         p.daemon = True
         p.start()
-
 
         x = np.zeros((batch_size, self.V, 227, 227, 3))
         y = np.zeros(batch_size)
@@ -147,5 +145,3 @@ class Dataset:
     def size(self):
         """ size of listfiles (if splitted, only count 'train', not 'val')"""
         return len(self.listfiles)
-
-
