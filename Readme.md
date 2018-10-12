@@ -9,7 +9,8 @@ A specific model is implemented:
 
 # Requirements
 
-- CUDA (7.5 up better)
+- CUDA (9.0 up better)
+- cuDNN (7.2.1 up better)
 - TensorFlow (0.10 up better)
 - python 2.7
 - Some other python packages
