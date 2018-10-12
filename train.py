@@ -116,6 +116,7 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
                              FLAGS.batch_size / duration, sec_per_batch)
 
                 # validation
+                acc = 0
                 if step % g_.VAL_PERIOD == 0:  # and step > 0:
                     val_losses = []
                     predictions = np.array([])
@@ -152,7 +153,7 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
                     summary_writer.add_summary(summary_str, step)
                     summary_writer.flush()
 
-                if step % g_.SAVE_PERIOD == 0 and step > startstep:
+                if step % g_.SAVE_PERIOD == 0 and step > startstep and acc > 0.85:
                     checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
                     saver.save(sess, checkpoint_path, global_step=step)
 
