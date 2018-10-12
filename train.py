@@ -153,8 +153,8 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
                     summary_writer.add_summary(summary_str, step)
                     summary_writer.flush()
 
-                if step % g_.SAVE_PERIOD == 0 and step > startstep and acc > 0.85:
-                    checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt_'+str(acc))
+                if step % g_.SAVE_PERIOD == 0 and step > startstep and acc > 0.88:
+                    checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt_%0.4f' % acc)
                     saver.save(sess, checkpoint_path, global_step=step)
 
 
