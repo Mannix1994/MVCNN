@@ -56,7 +56,7 @@ class Dataset:
         self.labels = labels
         self.shuffled = False
         self.subtract_mean = subtract_mean
-        self.V = V
+        self.V = V  # number of view
         print 'dataset inited'
         print '  total size:', len(listfiles)
 

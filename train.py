@@ -1,3 +1,4 @@
+# coding=utf8
 import numpy as np
 import os, sys, inspect
 import tensorflow as tf
@@ -17,7 +18,10 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 import model
 
+# FLAGS has all the command parameters
 FLAGS = tf.app.flags.FLAGS
+
+# define the command parameters
 tf.app.flags.DEFINE_string('train_dir', osp.dirname(sys.argv[0]) + '/tmp/',
                            """Directory where to write event logs """
                            """and checkpoint.""")
@@ -32,29 +36,47 @@ np.set_printoptions(precision=3)
 
 
 def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
+    """
+    train model
+    :param dataset_train: no need to explain
+    :param dataset_val: validation dataset
+    :param ckptfile: weights file name
+    :param caffemodel: actually I don't know what it is
+    :return: None
+    """
     print 'train() called'
+    # 'fine tune' means that train model with previous weights named ckptfile
     is_finetune = bool(ckptfile)
-    V = g_.NUM_VIEWS
+    V = g_.NUM_VIEWS  # V is the number of views, which is 12
     batch_size = FLAGS.batch_size
 
+    # shuffle the dataset
     dataset_train.shuffle()
     dataset_val.shuffle()
+    # get the dataset size
     data_size = dataset_train.size()
     print 'training size:', data_size
 
     with tf.Graph().as_default():
+        # get the start step
         startstep = 0 if not is_finetune else int(ckptfile.split('-')[-1])
+        # a Tensor, global step
         global_step = tf.Variable(startstep, trainable=False)
 
         # placeholders for graph input
         view_ = tf.placeholder('float32', shape=(None, V, 227, 227, 3), name='im0')
-        y_ = tf.placeholder('int64', shape=(None), name='y')
+        y_ = tf.placeholder('int64', shape=None, name='y')
+        # keep_prob_ is the dropout rate
         keep_prob_ = tf.placeholder('float32')
 
         # graph outputs
+        # forward propagation
         fc8 = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
+        # compute the loss
         loss = model.loss(fc8, y_)
+        # train one time
         train_op = model.train(loss, global_step, data_size)
+        # classify
         prediction = model.classify(fc8)
 
         # build the summary operation based on the F colection of Summaries
@@ -66,13 +88,14 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
         validation_acc = tf.placeholder('float32', shape=(), name='validation_accuracy')
         validation_acc_summary = tf.summary.scalar('validation_accuracy', validation_acc)
 
+        # save model's weights
         saver = tf.train.Saver(tf.all_variables(), max_to_keep=1000)
 
         init_op = tf.global_variables_initializer()
         sess = tf.Session(config=tf.ConfigProto(log_device_placement=FLAGS.log_device_placement))
 
         if is_finetune:
-            # load checkpoint file
+            # load checkpoint file(saved weights)
             saver.restore(sess, ckptfile)
             print 'restore variables done'
         elif caffemodel:
@@ -100,9 +123,7 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
                              y_: batch_y,
                              keep_prob_: 0.5}
 
-                _, pred, loss_value = sess.run(
-                    [train_op, prediction, loss, ],
-                    feed_dict=feed_dict)
+                _, pred, loss_value = sess.run([train_op, prediction, loss, ], feed_dict=feed_dict)
 
                 duration = time.time() - start_time
 
@@ -162,13 +183,18 @@ def main(argv):
     st = time.time()
     print 'start loading data'
 
+    # read train sample and labels
     listfiles_train, labels_train = read_lists(g_.TRAIN_LOL)
+    # read validation sample and labels
     listfiles_val, labels_val = read_lists(g_.VAL_LOL)
+    # new train dataset
     dataset_train = Dataset(listfiles_train, labels_train, subtract_mean=False, V=g_.NUM_VIEWS)
+    # new validation dataset
     dataset_val = Dataset(listfiles_val, labels_val, subtract_mean=False, V=g_.NUM_VIEWS)
 
     print 'done loading data, time=', time.time() - st
 
+    # FLAGS
     train(dataset_train, dataset_val, FLAGS.weights, FLAGS.caffemodel)
 
 
