@@ -46,7 +46,7 @@ def test(dataset, ckptfile):
         y_ = tf.placeholder('int64', shape=(None), name='y')
         keep_prob_ = tf.placeholder('float32')
 
-        fc8 = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
+        fc8, view_pool = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
         loss = model.loss(fc8, y_)
         train_op = model.train(loss, global_step, data_size)
         prediction = model.classify(fc8)
@@ -79,6 +79,10 @@ def test(dataset, ckptfile):
             pred, loss_value = sess.run(
                 [prediction, loss, ],
                 feed_dict=feed_dict)
+
+            views_value = sess.run(view_pool, feed_dict=feed_dict)
+            for index, v in enumerate(views_value):
+                np.savetxt('test_logs/views_value_%d_%d.csv' % (step, index), v, delimiter=',')
 
             duration = time.time() - start_time
 
