@@ -71,7 +71,7 @@ def train(dataset_train, dataset_val, ckptfile='', caffemodel=''):
 
         # graph outputs
         # forward propagation
-        fc8 = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
+        fc8, _ = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
         # compute the loss
         loss = model.loss(fc8, y_)
         # train one time

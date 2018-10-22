@@ -162,7 +162,7 @@ def inference_multiview(views, n_classes, keep_prob):
     fc7 = _fc('fc7', fc6, 4096, dropout=keep_prob)
     fc8 = _fc('fc8', fc7, n_classes)
 
-    return fc8
+    return fc8, view_pool
 
 
 def load_alexnet_to_mvcnn(sess, caffetf_modelpath):
