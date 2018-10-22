@@ -80,9 +80,9 @@ def test(dataset, ckptfile):
                 [prediction, loss, ],
                 feed_dict=feed_dict)
 
-            views_value = sess.run(view_pool, feed_dict=feed_dict)
-            for index, v in enumerate(views_value):
-                np.savetxt('test_logs/views_value_%d_%d.csv' % (step, index), v, delimiter=',')
+            # views_value = sess.run(view_pool, feed_dict=feed_dict)
+            # for index, v in enumerate(views_value):
+            #     np.savetxt('test_logs/views_value_%d_%d.csv' % (step, index), v, delimiter=',')
 
             duration = time.time() - start_time
 
