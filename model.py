@@ -196,6 +196,7 @@ def _view_pool(view_features, name):
         vp = tf.concat([vp, v], 0)
     print 'vp before reducing:', vp.get_shape().as_list()
     vp = tf.reduce_max(vp, [0], name=name)
+    print 'vp after reducing:', vp.get_shape().as_list()
     return vp
 
 
