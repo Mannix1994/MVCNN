@@ -18,9 +18,15 @@ def generate(models_path, model_paths):
                 f.write('12\n')
                 for a_path in model_images[i * 12:(i + 1) * 12]:
                     f.write(os.path.join(face_path, a_path)+'\n')
-    with open("/home/creator/Projects/DL/MVCNN-TensorFlow/data/view/train_lists.txt", 'w') as f:
-        for index, a_txt_path in enumerate(txt_paths):
-            f.write(a_txt_path+' %d\n' % index)
+    f1 = open("/home/creator/Projects/DL/MVCNN-TensorFlow/data/view/train_lists.txt", 'w')
+    f2 = open("/home/creator/Projects/DL/MVCNN-TensorFlow/data/view/val_lists.txt", 'w')
+    for index, a_txt_path in enumerate(txt_paths):
+        if (index % same_model_count) <= 2:
+            f1.write(a_txt_path+' %d\n' % (index//same_model_count))
+        else:
+            f2.write(a_txt_path + ' %d\n' % (index // same_model_count))
+    f1.close()
+    f2.close()
 
 
 if __name__ == '__main__':
