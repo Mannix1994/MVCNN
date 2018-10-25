@@ -17,6 +17,8 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 import model
+import cv2
+import matplotlib.pyplot as plt
 
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', osp.dirname(sys.argv[0]) + '/tmp/',
@@ -28,12 +30,14 @@ tf.app.flags.DEFINE_string('weights', '',
                            """finetune with a pretrained model""")
 
 np.set_printoptions(precision=3)
+plt.rcParams['figure.dpi'] = 400
 
 
 def test(dataset, ckptfile):
     print 'test() called'
     V = g_.NUM_VIEWS
-    batch_size = FLAGS.batch_size
+    # batch_size = FLAGS.batch_size
+    batch_size = 1
 
     data_size = dataset.size()
     print 'dataset size:', data_size
@@ -43,7 +47,7 @@ def test(dataset, ckptfile):
         global_step = tf.Variable(startstep, trainable=False)
 
         view_ = tf.placeholder('float32', shape=(None, V, 227, 227, 3), name='im0')
-        y_ = tf.placeholder('int64', shape=(None), name='y')
+        y_ = tf.placeholder('int64', shape=None, name='y')
         keep_prob_ = tf.placeholder('float32')
 
         fc8, view_pool = model.inference_multiview(view_, g_.NUM_CLASSES, keep_prob_)
@@ -80,9 +84,20 @@ def test(dataset, ckptfile):
                 [prediction, loss, ],
                 feed_dict=feed_dict)
 
-            # views_value = sess.run(view_pool, feed_dict=feed_dict)
-            # for index, v in enumerate(views_value):
-            #     np.savetxt('test_logs/views_value_%d_%d.csv' % (step, index), v, delimiter=',')
+            views_value = sess.run(view_pool, feed_dict=feed_dict)
+            for index, v in enumerate(views_value):
+                x = np.linspace(1, v.size, v.size)
+                plt.subplot(4, 3, index+1)
+                plt.scatter(x, v.reshape(-1), marker='.', linewidths=0.1)
+                plt.tight_layout()
+            plt.savefig('test/before_view_pool_%d.png' % step)
+            plt.clf()
+
+            fc8_value = sess.run(fc8, feed_dict=feed_dict)
+            x = np.linspace(1, fc8_value.size, fc8_value.size)
+            plt.scatter(x, fc8_value.reshape(-1), marker='.')
+            plt.savefig('test/after_view_pool_%d.png' % step)
+            plt.clf()
 
             duration = time.time() - start_time
 
