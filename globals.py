@@ -2,7 +2,7 @@
 constants for the data set.
 ModelNet40 for example
 """
-NUM_CLASSES = 40
+NUM_CLASSES = 37
 NUM_VIEWS = 12
 TRAIN_LOL = './data/view/train_lists.txt'
 VAL_LOL = './data/view/val_lists.txt'
@@ -25,7 +25,7 @@ INIT_LEARNING_RATE = 0.0001
 
 # sample how many shapes for validation
 # this affects the validation time
-VAL_SAMPLE_SIZE = 256
+VAL_SAMPLE_SIZE = 16
 
 # do a validation every VAL_PERIOD iterations
 VAL_PERIOD = 100

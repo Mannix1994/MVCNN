@@ -84,20 +84,21 @@ def test(dataset, ckptfile):
                 [prediction, loss, ],
                 feed_dict=feed_dict)
 
+            plt.figure(2)
             views_value = sess.run(view_pool, feed_dict=feed_dict)
             for index, v in enumerate(views_value):
                 x = np.linspace(1, v.size, v.size)
                 plt.subplot(4, 3, index+1)
-                plt.scatter(x, v.reshape(-1), marker='.', linewidths=0.1)
-                plt.tight_layout()
+                plt.plot(x, v.reshape(-1), marker='.', lw=0.1)
+            plt.tight_layout()
             plt.savefig('test/before_view_pool_%d.png' % step)
             plt.clf()
 
+            plt.figure(1, [9, 2*(data_size//3+1)])
             fc8_value = sess.run(fc8, feed_dict=feed_dict)
             x = np.linspace(1, fc8_value.size, fc8_value.size)
-            plt.scatter(x, fc8_value.reshape(-1), marker='.')
-            plt.savefig('test/after_view_pool_%d.png' % step)
-            plt.clf()
+            plt.subplot(data_size//3+1, 3, step)
+            plt.plot(x, fc8_value.reshape(-1), marker='.')
 
             duration = time.time() - start_time
 
@@ -111,6 +112,10 @@ def test(dataset, ckptfile):
 
             predictions.extend(pred.tolist())
             labels.extend(batch_y.tolist())
+
+        plt.tight_layout()
+        plt.savefig('test/after_view_pool_%d.png' % step)
+        plt.clf()
 
         # print labels
         # print predictions
